@@ -117,3 +117,9 @@ ul {
 	bottom: 0px;
 
 }
+
+#jobstories {
+	background-color: #fffff0;
+	position: relative;
+	z-index: 1;
+}

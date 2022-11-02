@@ -15,13 +15,15 @@ var newsJSONs = [];
 var newsHTMLs = [];
 var processing = false;
 var newsRequests = 0;
-var ol;
-var ul;
+var ol = document.createElement("ol");
+var ul = document.createElement("ul");
+document.querySelector("#topstories").appendChild(ol);
+document.querySelector("#jobstories").appendChild(ul);
 
 
-function main(url) {
+function main(url, lt=ol) {
 
-
+	//SCROLLING MODULE
 
 	document.addEventListener("scroll", function (event) {
 
@@ -53,14 +55,14 @@ function main(url) {
 				})
 				.then((newsHTMLs) => {
 
-					renderHTML(newsHTMLs);
+					renderHTML(newsHTMLs,lt);
 					processing = false;
 				});
 		}
 		//console.log(wind);
 	});
 
-	
+	//FIRST LOAD	
 
 	getNewsIDs(url).then((data) => {
 		newsIDs = data;
@@ -83,10 +85,10 @@ function main(url) {
 			return newsHTMLs;
 		})
 		.then((newsHTMLs) => {
-			ol = document.createElement("ol");
-			document.querySelector("#topstories").appendChild(ol);
-			// document.getElementById("content").style.display = "block";
-			renderHTML(newsHTMLs);
+		
+			//document.querySelector("#topstories").appendChild(ol);
+			
+			renderHTML(newsHTMLs, lt);
 
 		});
 
@@ -100,16 +102,21 @@ function main(url) {
 			console.log("I have been clicked");
 			if(button.id == "home"){
 				console.log("home");
+				document.getElementById("jobstories").style.display = "none";
 				document.getElementById("loadingmask").style.display = "block";
-				main(topstoriesurl);
+				document.getElementById("topstories").style.display = "block";
+				document.querySelector("ol").innerHTML = "";
+				
+				main(topstoriesurl, ol);
 			}
 			if(button.id == "jobs"){
 				console.log("jobs");
 				document.getElementById("topstories").style.display = "none";
 				document.getElementById("loadingmask").style.display = "block";
 				document.getElementById("jobstories").style.display = "block";
+				document.querySelector("ul").innerHTML = "";
 	
-				main(jobstoriesurl);
+				main(jobstoriesurl,ul);
 				
 			}
 		});
@@ -190,10 +197,11 @@ function getNewsHTMLContent(newsJSONs) {
 
 }
 
-function renderHTML(newsHTMLs) {
+function renderHTML(newsHTMLs, lt) {
 	document.getElementById("loadingmask").style.display = "none";
 	// const renderArr = newsHTMLs.slice(0,25);
-	ol.insertAdjacentHTML("beforeend", newsHTMLs);
+	lt.insertAdjacentHTML("beforeend", newsHTMLs);
+	//debugger;
 	newsRequests++;
 
 }

@@ -13,7 +13,8 @@ var jobstoriesurl = "https://hacker-news.firebaseio.com/v0/jobstories.json";
 var newsIDs = [];
 var newsJSONs = [];
 var newsHTMLs = [];
-var processing = false;
+var scrollProcessing = false;
+//var buttonProcessing = false;
 var newsRequests = 0;
 var ol = document.createElement("ol");
 var ul = document.createElement("ul");
@@ -22,21 +23,25 @@ document.querySelector("#jobstories").appendChild(ul);
 
 
 function main(url, lt=ol) {
-
+	newsRequests = 0;
+	var buttonProcessing = false;
+	
+	
 	//SCROLLING MODULE
+	
 
 	document.addEventListener("scroll", function (event) {
 
 		// console.log("scrolltop:"+this.documentElement.scrollTop+" scrollHeight:"+this.documentElement.scrollHeight+" clientHeight:"+this.documentElement.clientHeight);
-
-		if (processing)
+	
+		if (scrollProcessing)
 			return;
 
 		if ((0.9 * this.documentElement.scrollHeight) - this.documentElement.scrollTop <= this.documentElement.clientHeight) {
 			console.log("Ajax hit");
 			document.getElementById("loadingmask").style.display = "block";
 			const requests = [];
-			processing = true;
+			scrollProcessing = true;
 			console.log("Number of news requests:" + newsRequests);
 
 			for (let i = (50 * newsRequests); i < (50 * newsRequests) + 50; i++) {
@@ -49,21 +54,29 @@ function main(url, lt=ol) {
 			Promise.all(requests)
 				.then((requests) => {
 					console.log(requests);
-					newsHTMLs = getNewsHTMLContent(requests);
-					console.log(newsHTMLs);
-					return newsHTMLs;
+					try{
+						newsHTMLs = getNewsHTMLContent(requests);
+						console.log(newsHTMLs);
+						return newsHTMLs;
+					}
+					catch(error){
+						console.log("End of stories");
+					}
+					finally{
+						scrollProcessing = false;
+					}
 				})
 				.then((newsHTMLs) => {
 
 					renderHTML(newsHTMLs,lt);
-					processing = false;
+					//scrollProcessing = false;
 				});
 		}
 		//console.log(wind);
 	});
 
 	//FIRST LOAD	
-
+	
 	getNewsIDs(url).then((data) => {
 		newsIDs = data;
 		console.log(newsIDs);
@@ -89,7 +102,7 @@ function main(url, lt=ol) {
 			//document.querySelector("#topstories").appendChild(ol);
 			
 			renderHTML(newsHTMLs, lt);
-
+			scrollProcessing = false;
 		});
 
 
@@ -98,10 +111,15 @@ function main(url, lt=ol) {
 
 	//console.log(buttons);
 	buttons.forEach(function(button) {
-		button.addEventListener("click", function() {
+		button.addEventListener("click", function(event) {
+			if(buttonProcessing)
+				return;
+			
+			
 			console.log("I have been clicked");
 			if(button.id == "home"){
 				console.log("home");
+				buttonProcessing = true;
 				document.getElementById("jobstories").style.display = "none";
 				document.getElementById("loadingmask").style.display = "block";
 				document.getElementById("topstories").style.display = "block";
@@ -111,6 +129,7 @@ function main(url, lt=ol) {
 			}
 			if(button.id == "jobs"){
 				console.log("jobs");
+				buttonProcessing = true;
 				document.getElementById("topstories").style.display = "none";
 				document.getElementById("loadingmask").style.display = "block";
 				document.getElementById("jobstories").style.display = "block";
@@ -203,6 +222,7 @@ function renderHTML(newsHTMLs, lt) {
 	lt.insertAdjacentHTML("beforeend", newsHTMLs);
 	//debugger;
 	newsRequests++;
+	
 
 }
 

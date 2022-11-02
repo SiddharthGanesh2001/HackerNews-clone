@@ -14,7 +14,7 @@ var newsIDs = [];
 var newsJSONs = [];
 var newsHTMLs = [];
 var scrollProcessing = false;
-//var buttonProcessing = false;
+
 var newsRequests = 0;
 var ol = document.createElement("ol");
 var ul = document.createElement("ul");
@@ -23,6 +23,7 @@ document.querySelector("#jobstories").appendChild(ul);
 
 
 function main(url, lt=ol) {
+	
 	newsRequests = 0;
 	var buttonProcessing = false;
 	

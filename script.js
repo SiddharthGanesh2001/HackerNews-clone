@@ -62,9 +62,7 @@ function main(url, lt=ol) {
 					catch(error){
 						console.log("End of stories");
 					}
-					finally{
-						scrollProcessing = false;
-					}
+					
 				})
 				.then((newsHTMLs) => {
 
@@ -72,7 +70,7 @@ function main(url, lt=ol) {
 					//scrollProcessing = false;
 				});
 		}
-		//console.log(wind);
+
 	});
 
 	//FIRST LOAD	
@@ -102,7 +100,7 @@ function main(url, lt=ol) {
 			//document.querySelector("#topstories").appendChild(ol);
 			
 			renderHTML(newsHTMLs, lt);
-			scrollProcessing = false;
+			
 		});
 
 
@@ -176,7 +174,7 @@ function getNewsByID(newsId) {
 function getNewsHTMLContent(newsJSONs) {
 
 
-	// var ol = document.createElement("ol");
+	
 
 
 
@@ -206,12 +204,6 @@ function getNewsHTMLContent(newsJSONs) {
 	}).join('');
 
 
-	// document.querySelector(".itemlist").appendChild(ol);
-
-	// ol.insertAdjacentHTML("beforeend", newsitem);
-
-	// console.log(newsItems);
-
 	return newsItems;
 
 }
@@ -220,12 +212,12 @@ function renderHTML(newsHTMLs, lt) {
 	document.getElementById("loadingmask").style.display = "none";
 	// const renderArr = newsHTMLs.slice(0,25);
 	lt.insertAdjacentHTML("beforeend", newsHTMLs);
-	//debugger;
+	
 	newsRequests++;
+	scrollProcessing = false;
 	
 
 }
 
 main(topstoriesurl);
-// Promise.all(newsJSONs)
-// 		.then(values => console.log(values));
+

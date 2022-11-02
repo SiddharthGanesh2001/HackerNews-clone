@@ -2,41 +2,40 @@
 
 
 //url of top stories
-var topstoriesurl = "https://hacker-news.firebaseio.com/v0/topstories.json";
+const topstoriesurl = "https://hacker-news.firebaseio.com/v0/topstories.json";
 
 //url of particular news item
-var newsitemurl = "https://hacker-news.firebaseio.com/v0/item/";
+const newsitemurl = "https://hacker-news.firebaseio.com/v0/item/";
 
 //url of jobstories
-var jobstoriesurl = "https://hacker-news.firebaseio.com/v0/jobstories.json";
+const jobstoriesurl = "https://hacker-news.firebaseio.com/v0/jobstories.json";
 
-var newsIDs = [];
-var newsJSONs = [];
-var newsHTMLs = [];
-var scrollProcessing = false;
+let newsIDs = [];
+let newsJSONs = [];
+let newsHTMLs = [];
+let scrollProcessing = false;
 
-var newsRequests = 0;
-var ol = document.createElement("ol");
-var ul = document.createElement("ul");
+let newsRequests = 0;
+const ol = document.createElement("ol");
+const ul = document.createElement("ul");
 document.querySelector("#topstories").appendChild(ol);
 document.querySelector("#jobstories").appendChild(ul);
 
 
-function main(url, lt=ol) {
+function main(url, listType=ol) {
 	
 	newsRequests = 0;
-	var buttonProcessing = false;
-	
-	
-	//SCROLLING MODULE
-	
+	let buttonProcessing = false;
+
+	//SCROLLING MODULE	
 
 	document.addEventListener("scroll", function (event) {
 
 		// console.log("scrolltop:"+this.documentElement.scrollTop+" scrollHeight:"+this.documentElement.scrollHeight+" clientHeight:"+this.documentElement.clientHeight);
 	
-		if (scrollProcessing)
+		if (scrollProcessing) {
 			return;
+		}
 
 		if ((0.9 * this.documentElement.scrollHeight) - this.documentElement.scrollTop <= this.documentElement.clientHeight) {
 			console.log("Ajax hit");
@@ -54,21 +53,20 @@ function main(url, lt=ol) {
 
 			Promise.all(requests)
 				.then((requests) => {
+
 					console.log(requests);
-					try{
-						newsHTMLs = getNewsHTMLContent(requests);
-						console.log(newsHTMLs);
-						return newsHTMLs;
-					}
-					catch(error){
-						console.log("End of stories");
-					}
-					
+					newsHTMLs = getNewsHTMLContent(requests);
+					console.log(newsHTMLs);
+					return newsHTMLs;
+									
 				})
 				.then((newsHTMLs) => {
 
-					renderHTML(newsHTMLs,lt);
-					//scrollProcessing = false;
+					renderHTML(newsHTMLs,listType);
+		
+				})
+				.catch(() => {
+					console.log("End of stories");
 				});
 		}
 
@@ -97,10 +95,8 @@ function main(url, lt=ol) {
 			return newsHTMLs;
 		})
 		.then((newsHTMLs) => {
-		
-			//document.querySelector("#topstories").appendChild(ol);
 			
-			renderHTML(newsHTMLs, lt);
+			renderHTML(newsHTMLs, listType);
 			
 		});
 
@@ -108,15 +104,14 @@ function main(url, lt=ol) {
 
 	var buttons = document.querySelectorAll(".button");
 
-	//console.log(buttons);
 	buttons.forEach(function(button) {
 		button.addEventListener("click", function(event) {
-			if(buttonProcessing)
+			if(buttonProcessing) {
 				return;
-			
+			}
 			
 			console.log("I have been clicked");
-			if(button.id == "home"){
+			if(button.id == "home") {
 				console.log("home");
 				buttonProcessing = true;
 				document.getElementById("jobstories").style.display = "none";
@@ -126,7 +121,7 @@ function main(url, lt=ol) {
 				
 				main(topstoriesurl, ol);
 			}
-			if(button.id == "jobs"){
+			if(button.id == "jobs") {
 				console.log("jobs");
 				buttonProcessing = true;
 				document.getElementById("topstories").style.display = "none";
@@ -140,8 +135,6 @@ function main(url, lt=ol) {
 		});
 	});
 
-	
-
 
 }
 
@@ -149,6 +142,7 @@ function main(url, lt=ol) {
 
 
 function getNewsIDs(link) {
+
 	return fetch(link)
 		.then((response) => response.json());
 }
@@ -174,22 +168,14 @@ function getNewsByID(newsId) {
 
 function getNewsHTMLContent(newsJSONs) {
 
-
-	
-
-
-
 	//transforming the array newsJSONs
 
-	var newsItems = newsJSONs.map((story) => {
-		if (story.hasOwnProperty('url')) {
+	let newsItems = newsJSONs.map((story) => {
+		if (story.url) {
 			var title = story.title;
 			var link = story.url;
 			var domain = new URL(link);
-
-			// console.log('domain:'+domain);
 			domain = domain.hostname;
-			// console.log('hostname:'+domain);
 			var by = story.by;
 			var score = story.score;
 
@@ -204,21 +190,17 @@ function getNewsHTMLContent(newsJSONs) {
 		}
 	}).join('');
 
-
 	return newsItems;
 
 }
 
-function renderHTML(newsHTMLs, lt) {
+function renderHTML(newsHTMLs, listType) {
+
 	document.getElementById("loadingmask").style.display = "none";
-	// const renderArr = newsHTMLs.slice(0,25);
-	lt.insertAdjacentHTML("beforeend", newsHTMLs);
-	
+	listType.insertAdjacentHTML("beforeend", newsHTMLs);
 	newsRequests++;
 	scrollProcessing = false;
-	
 
 }
 
 main(topstoriesurl);
-
